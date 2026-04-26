@@ -41,12 +41,17 @@
 # % key: b
 # % description: create bidirectional matrix (same neighborhood relation repeated twice)
 # %end
+# %option G_OPT_F_OUTPUT
+# % description: Name for output file (if omitted or "-" output to stdout)
+# % required: no
+# %end
 
 import sys
 import os
 import atexit
 import grass.script as gs
 from grass.script.utils import separator
+import json
 
 
 def cleanup():
@@ -75,6 +80,7 @@ def main():
         type="boundary",
         quiet=True,
         overwrite=True,
+        format="json",
     )
     vtodb_results = gs.read_command(
         "v.to.db",
