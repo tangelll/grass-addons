@@ -41,9 +41,13 @@
 # % key: b
 # % description: create bidirectional matrix (same neighborhood relation repeated twice)
 # %end
-# %option G_OPT_F_OUTPUT
-# % description: Name for output file (if omitted or "-" output to stdout)
+# %option G_OPT_F_FORMAT
+# % key: format
+# % description: Output format
+# % options: plain,json
+# % descriptions: plain;Plain text output;json;JSON (JavaScript Object Notation);
 # % required: no
+# % guisection: Output
 # %end
 
 import sys
@@ -66,10 +70,15 @@ def main():
     idcolumn = options["idcolumn"] if options["idcolumn"] else False
     sep = separator(options["separator"])
     bidirectional = flags["b"]
+    format = options["format"]
     global tempmapname
     tempmapname = "neighborhoodmatrix_tempmap_%d" % os.getpid()
     # TODO: automatically determine the first available layer in file
     blayer = player + 1
+
+    if format:
+        print(f"Parameter value: {format}")
+
 
     gs.run_command(
         "v.category",
@@ -95,6 +104,7 @@ def main():
 
     # put result into a list of integer pairs
     temp_neighbors = []
+    results_list = []
     for line in vtodb_results.splitlines():
         if line.split("|")[1] != "-1" and line.split("|")[2] != "-1":
             temp_neighbors.append([int(line.split("|")[1]), int(line.split("|")[2])])
@@ -140,13 +150,29 @@ def main():
             ).rstrip()
             if output and output != "-":
                 out.write(fromid + sep + toid + "\n")
+                results_list.append({"from": fromid, "to": toid})
             else:
                 print((fromid + sep + toid))
         else:
             if output and output != "-":
                 out.write(str(pair[0]) + sep + str(pair[1]) + "\n")
+                results_list.append({"from": fromid, "to": toid})
             else:
                 print((str(pair[0]) + sep + str(pair[1])))
+
+    if format == "json":
+        json_results = json.dumps(results_list, indent=4)
+        if output and output != "-":
+            sys.stdout.write(json_results)
+        else:
+            sys.stdout.write(json_results)
+    else:
+        if output and output != "-":
+            out.write(fromid + sep + toid + "\n")
+        else:
+            print(fromid + sep + toid)
+
+
     if output and output != "-":
         out.close()
 
