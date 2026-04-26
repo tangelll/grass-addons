@@ -148,17 +148,22 @@ def main():
                 flags="c",
                 quiet=True,
             ).rstrip()
+        results_list.append({"from": fromid, "to": toid})
+
+        if format != "json":
             if output and output != "-":
                 out.write(fromid + sep + toid + "\n")
-                results_list.append({"from": fromid, "to": toid})
             else:
-                print((fromid + sep + toid))
-        else:
+                print(fromid + sep + toid)
+
+    else:
+        results_list.append({"from": pair[0], "to": pair[1]})
+
+        if format != "json":
             if output and output != "-":
                 out.write(str(pair[0]) + sep + str(pair[1]) + "\n")
-                results_list.append({"from": fromid, "to": toid})
             else:
-                print((str(pair[0]) + sep + str(pair[1])))
+                print(str(pair[0]) + sep + str(pair[1]))
 
     if format == "json":
         json_results = json.dumps(results_list, indent=4)
@@ -166,11 +171,6 @@ def main():
             sys.stdout.write(json_results)
         else:
             sys.stdout.write(json_results)
-    else:
-        if output and output != "-":
-            out.write(fromid + sep + toid + "\n")
-        else:
-            print(fromid + sep + toid)
 
 
     if output and output != "-":
